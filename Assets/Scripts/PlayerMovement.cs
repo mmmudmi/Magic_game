@@ -6,7 +6,11 @@ using System.Collections.Generic;
 [RequireComponent(typeof(CharacterController))]
 
 public class PlayerMovement : MonoBehaviour
-{
+{  
+    [Header("Attack Settings")]
+    [SerializeField] private string attackTrigger = "Attack";
+    private bool isAttacking;
+
     [Header("Movement Settings")] [SerializeField]
     private float moveSpeed = 2f;
 
@@ -68,6 +72,7 @@ public class PlayerMovement : MonoBehaviour
         ApplyMovement();
         UpdateRollCooldownTimer();
         ApplyGravity();
+        HandleAttacking();
         UpdateAnimation();
     }
 
@@ -227,6 +232,28 @@ public class PlayerMovement : MonoBehaviour
             isRunning = false;
         }
     }
+    private IEnumerator ResetAttack()
+    {
+        yield return new WaitForSeconds(0.5f); // Adjust the duration to match your attack animation length
+        isAttacking = false;
+    }
+    public void OnAttack(InputValue value)
+    {
+        if (value.isPressed && !isAttacking && !isJumping && !isRolling)
+        {
+            isAttacking = true;
+            animator.SetTrigger(attackTrigger);
+            StartCoroutine(ResetAttack());
+        }
+    }
+    private void HandleAttacking()
+    {
+        if (isAttacking || isJumping || isRolling) return;
+
+        // Removed animator.SetTrigger(attackTrigger);
+        // Removed StartCoroutine(ResetAttack());
+    }
+
     public void OnMove(InputValue value)
     {
         moveInput = value.Get<Vector2>();
