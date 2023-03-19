@@ -15,6 +15,7 @@ public class PlayerMovement : MonoBehaviour
     private float moveSpeed = 2f;
 
     [SerializeField] private float runSpeed = 4f;
+
     [SerializeField] private float walkRotateSpeed = 15f;
     [SerializeField] private float runRotateSpeed = 20f;
     [SerializeField] private float gravity = -9.81f;
@@ -75,6 +76,7 @@ public class PlayerMovement : MonoBehaviour
         HandleAttacking();
         UpdateAnimation();
     }
+
 
     private void HandleJumping()
     {

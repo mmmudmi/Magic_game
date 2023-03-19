@@ -14,10 +14,10 @@ TagManager:
   - Water
   - UI
   - Ground
-  - Player
+  - 
   - MonsterGround
-  - 
-  - 
+  - Player
+  - Monster
   - 
   - 
   - 
@@ -51,4 +51,7 @@ TagManager:
     locked: 0
   - name: Player
     uniqueID: 3100732263
+    locked: 0
+  - name: Monster
+    uniqueID: 3647791735
     locked: 0
