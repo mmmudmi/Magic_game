@@ -53,7 +53,7 @@ public class MonsterAI : MonoBehaviour
         animator.SetBool("die",false);
         animator.SetBool("isWalking",false);
         animator.SetBool("isRunning",false);
-        prev_movement = transform.position.x + transform.position.z;
+        prev_movement = transform.position.x;
 
     }
 
@@ -85,12 +85,12 @@ public class MonsterAI : MonoBehaviour
     {
 
         if (isDead) {return;}
-        else if (prev_movement == transform.position.x + transform.position.z) {
+        else if (prev_movement == transform.position.x) {
              animator.SetBool("isWalking",false);
         } else {
             animator.SetBool("isWalking",true);
         }
-        prev_movement = transform.position.x + transform.position.z;
+        prev_movement = transform.position.x ;
         
         if (!walkPointSet) SearchWalkPoint();
 
@@ -120,12 +120,12 @@ public class MonsterAI : MonoBehaviour
     private void ChasePlayer()
     {
         if (isDead) {return;}
-        else if (prev_movement == transform.position.x+ transform.position.z) {
+        else if (prev_movement == transform.position.x) {
              animator.SetBool("isWalking",false);
         } else {
             animator.SetBool("isWalking",true);
         }
-        prev_movement = transform.position.x+ transform.position.z;
+        prev_movement = transform.position.x;
         
         agent.SetDestination(player.position);
 
@@ -136,12 +136,12 @@ public class MonsterAI : MonoBehaviour
     private void AttackPlayer()
     {
         if (isDead) {return;}
-        else if (prev_movement == transform.position.x+ transform.position.z) {
+        else if (prev_movement == transform.position.x) {
              animator.SetBool("isWalking",false);
         } else {
             animator.SetBool("isWalking",true);
         }
-        prev_movement = transform.position.x+ transform.position.z;
+        prev_movement = transform.position.x;
 
         //Make sure enemy doesn't move
         agent.SetDestination(transform.position);
