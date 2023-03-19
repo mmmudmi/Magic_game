@@ -7,6 +7,10 @@ using System.Collections.Generic;
 
 public class PlayerMovement : MonoBehaviour
 {  
+    [Header("Magic Attack Settings")]
+    [SerializeField] private string magicAttackTrigger = "MagicAttack";
+    [SerializeField] private GameObject magicAttackEffectPrefab;
+    private bool isMagicAttacking;
     [Header("Attack Settings")]
     [SerializeField] private string attackTrigger = "Attack";
     private bool isAttacking;
@@ -74,6 +78,7 @@ public class PlayerMovement : MonoBehaviour
         UpdateRollCooldownTimer();
         ApplyGravity();
         HandleAttacking();
+        HandleMagicAttacking();
         UpdateAnimation();
     }
 
@@ -239,6 +244,25 @@ public class PlayerMovement : MonoBehaviour
         yield return new WaitForSeconds(0.5f); // Adjust the duration to match your attack animation length
         isAttacking = false;
     }
+  
+    private IEnumerator ResetMagicAttack()
+    {
+        yield return new WaitForSeconds(0.5f); // Adjust the duration to match your magic attack animation length
+        isMagicAttacking = false;
+    }
+    private void HandleAttacking()
+    {
+        if (isAttacking || isJumping || isRolling) return;
+
+        // Removed animator.SetTrigger(attackTrigger);
+        // Removed StartCoroutine(ResetAttack());
+    }
+
+    private void HandleMagicAttacking()
+    {
+        if (isMagicAttacking || isJumping || isRolling) return;
+    }
+   
     public void OnAttack(InputValue value)
     {
         if (value.isPressed && !isAttacking && !isJumping && !isRolling)
@@ -248,12 +272,24 @@ public class PlayerMovement : MonoBehaviour
             StartCoroutine(ResetAttack());
         }
     }
-    private void HandleAttacking()
+    public void OnMagicAttack(InputValue value)
     {
-        if (isAttacking || isJumping || isRolling) return;
+        if (value.isPressed && !isMagicAttacking && !isJumping && !isRolling)
+        {
+            isMagicAttacking = true;
+            animator.SetTrigger(magicAttackTrigger);
 
-        // Removed animator.SetTrigger(attackTrigger);
-        // Removed StartCoroutine(ResetAttack());
+            // Instantiate the magic attack effect
+            Vector3 effectPosition = transform.position + transform.forward * 5f; // Adjust the position and offset as needed
+            GameObject magicAttackEffectInstance = Instantiate(magicAttackEffectPrefab, effectPosition, transform.rotation);
+
+            // Play the Particle System and destroy it after a certain duration
+            ParticleSystem magicAttackEffect = magicAttackEffectInstance.GetComponent<ParticleSystem>();
+            magicAttackEffect.Play();
+            Destroy(magicAttackEffectInstance, magicAttackEffect.main.duration);
+
+            StartCoroutine(ResetMagicAttack());
+        }
     }
 
     public void OnMove(InputValue value)
@@ -276,12 +312,13 @@ public class PlayerMovement : MonoBehaviour
 
     public void OnRoll(InputValue value)
     {
-        if (value.isPressed && !isRolling && !isJumping && rollCooldownTimer <= 0f)
+        if (value.isPressed && !isRolling && !isJumping && rollCooldownTimer <= 0f && !isAttacking && !isMagicAttacking)
         {
             isRolling = true;
             rollCooldownTimer = rollCooldown;
         }
     }
+
 
 
 }
