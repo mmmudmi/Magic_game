@@ -7,12 +7,14 @@ public class MonsterAI : MonoBehaviour
 {
     ///change every level
     [SerializeField] float RunAwayHealthLimit = 1000f;
-
+    public float damageCooldown = 1f;
+    private float lastDamageTime = -Mathf.Infinity;
     public bool BehindExitDoor = false;
 
     [SerializeField] public LayerMask groundMask;
-
-
+    public bool isAttacking = false;
+    private Rigidbody playerRb;
+    
 
 
     public Animator animator;
@@ -53,8 +55,13 @@ public class MonsterAI : MonoBehaviour
         animator.SetBool("die",false);
         animator.SetBool("isWalking",false);
         animator.SetBool("isRunning",false);
+        playerRb = player.GetComponent<Rigidbody>();
         prev_movement = transform.position.x;
 
+    }
+    private void ApplyKnockback(Vector3 knockbackForce)
+    {
+        player.GetComponent<PlayerMovement>().ApplyKnockback(knockbackForce);
     }
 
     private void Update()
@@ -68,8 +75,24 @@ public class MonsterAI : MonoBehaviour
 
 
         if (!playerInSightRange && !playerInAttackRange)  Patroling();
-        if (playerInSightRange && !playerInAttackRange) ChasePlayer();
-        if (playerInAttackRange && playerInSightRange) AttackPlayer();
+        if (playerInSightRange && !playerInAttackRange)
+        {
+            ChasePlayer();
+        }
+        else if (playerInSightRange && playerInAttackRange)
+        {
+            if (!isAttacking)
+            {
+                isAttacking = true;
+                AttackPlayer();
+            }
+        }
+        else
+        {
+            isAttacking = false;
+        }
+
+      
     }
 
     private void runAway() //run away at the end of each level
@@ -137,17 +160,17 @@ public class MonsterAI : MonoBehaviour
     {
         if (isDead) {return;}
         else if (prev_movement == transform.position.x) {
-             animator.SetBool("isWalking",false);
+            animator.SetBool("isWalking",false);
         } else {
             animator.SetBool("isWalking",true);
         }
         prev_movement = transform.position.x;
 
-        //Make sure enemy doesn't move
-        agent.SetDestination(transform.position);
+        // Disable movement and collider during attack
+        agent.isStopped = true;
 
         transform.LookAt(player);
-       
+   
         if (!alreadyAttacked)
         {
             ///Attack code here
@@ -159,28 +182,54 @@ public class MonsterAI : MonoBehaviour
         }
         lastDidSomething  = Time.time; 
     }
+
     private void ResetAttack()
     {
         alreadyAttacked = false;
+        isAttacking = false;
+        agent.isStopped = false;
+ 
     }
 
     public void TakeDamage(int damage)
     {
-        if (isDead) {return;}
+        if (isDead) { return; }
 
-        health -= damage;
+        // Check if the damage cooldown has passed
+        if (Time.time >= lastDamageTime + damageCooldown)
+        {
+            health -= damage;
+            lastDamageTime = Time.time;
 
-        if (health <= 0) isDead = true; 
-        animator.SetBool("die",true);
+            if (health <= 0) isDead = true;
+            animator.SetBool("die", true);
+        }
     }
 
     private void AttackRandomly()
     {
-        int randomNumber = Random.Range(0,2);
+        int randomNumber = Random.Range(0, 2);
+        Vector3 knockbackDirection = (player.position - transform.position).normalized;
+        Vector3 knockbackForce;
 
-        if (randomNumber == 0) { animator.SetTrigger("punch");}
-        else if (randomNumber ==1) {animator.SetTrigger("pound");}
-        else {animator.SetTrigger("punch");}
+        if (randomNumber == 0)
+        {
+            animator.SetTrigger("punch");
+            knockbackForce = new Vector3(knockbackDirection.x * 100f, 100f, knockbackDirection.z *100f);
+        }
+        else
+        {
+            animator.SetTrigger("pound");
+            knockbackForce = new Vector3(knockbackDirection.x * 100f, 100f, knockbackDirection.z * 100f);
+        }
+
+        // Wait for the attack animation to reach the point of impact before applying knockback
+        StartCoroutine(WaitForImpactAndApplyKnockback(0.5f, knockbackForce));
+    }
+    private IEnumerator WaitForImpactAndApplyKnockback(float waitTime, Vector3 knockbackForce)
+    {
+        yield return new WaitForSeconds(waitTime);
+        ApplyKnockback(knockbackForce);
     }
 
 

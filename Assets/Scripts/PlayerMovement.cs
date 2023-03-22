@@ -80,6 +80,11 @@ public class PlayerMovement : MonoBehaviour
         HandleAttacking();
         HandleMagicAttacking();
         UpdateAnimation();
+        if (knockbackTimer > 0)
+        {
+            characterController.Move(knockbackVelocity * Time.deltaTime);
+            knockbackTimer -= Time.deltaTime;
+        }
     }
 
 
@@ -280,7 +285,7 @@ public class PlayerMovement : MonoBehaviour
             animator.SetTrigger(magicAttackTrigger);
 
             // Instantiate the magic attack effect
-            Vector3 effectPosition = transform.position + transform.forward * 5f; // Adjust the position and offset as needed
+            Vector3 effectPosition = transform.position + transform.forward * 10f; // Adjust the position and offset as needed
             GameObject magicAttackEffectInstance = Instantiate(magicAttackEffectPrefab, effectPosition, transform.rotation);
 
             // Play the Particle System and destroy it after a certain duration
@@ -317,6 +322,13 @@ public class PlayerMovement : MonoBehaviour
             isRolling = true;
             rollCooldownTimer = rollCooldown;
         }
+    }
+    private Vector3 knockbackVelocity;
+    private float knockbackTimer = 0f;
+    public void ApplyKnockback(Vector3 knockbackForce)
+    {
+        knockbackVelocity = knockbackForce;
+        knockbackTimer = 0.2f; // Adjust the duration of the knockback effect
     }
 
 
