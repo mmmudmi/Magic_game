@@ -27,7 +27,7 @@ public class PlayerSwordPickUp : MonoBehaviour
                 pickedUpSword.transform.SetParent(swordHolder);
                 pickedUpSword.transform.localPosition = Vector3.zero;
                 pickedUpSword.transform.localRotation = Quaternion.identity;
-                pickedUpSword.GetComponent<Collider>().enabled = false;
+                pickedUpSword.GetComponent<Collider>().enabled = true;
                 pickedUpSword.GetComponent<Rigidbody>().isKinematic = true;
                 break;
             }
