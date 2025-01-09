@@ -1,3 +1,6 @@
-Group Project: The hunter 3D game
+# The Hunter Golem 3D game - Group Project
 
-Click to play: https://play.unity.com/mg/other/the-hunter-golem-3d-1
+Search The Hunter Golem 3D at https://play.unity.com/
+Or [click](https://play.unity.com/en/games/c3a3bd53-1b45-400d-ac3b-dc6982abedfd/the-hunter-golem-3d)
+
+
